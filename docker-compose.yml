@@ -1,0 +1,82 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: transactions_db
+    ports:
+      - "5432:5432"
+    networks:
+      - kafka-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"] # Todo: This produces an error but achieves the desired result
+      timeout: 10s
+      retries: 3
+  jupyter:
+    image: jupyter/base-notebook
+    build:
+      context: ./jupyter
+      dockerfile: Dockerfile.jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    environment:
+      - JUPYTER_TOKEN=password
+    networks:
+      - kafka-net
+  fastapi:
+    build: 
+      context: ./fastapi
+      dockerfile: Dockerfile.fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kafka-net
+  pytest:
+    build: 
+      context: ./fastapi
+      dockerfile: Dockerfile.fastapi
+    command: ["pytest", "/app/test_app.py"]
+    depends_on:
+      - postgres
+    networks:
+      - kafka-net
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - kafka-net
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+      - postgres
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+    networks:
+      - kafka-net
+
+  kafka-consumer:
+    build: 
+      context: ./kafka/consumer
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_URL: kafka:9092
+    networks:
+      - kafka-net
+networks:
+  kafka-net:
+    driver: bridge

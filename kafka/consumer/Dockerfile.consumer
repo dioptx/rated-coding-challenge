@@ -1,0 +1,14 @@
+# Use an official Python runtime as a base image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install the Kafka Python library
+RUN pip install kafka-python pandas psycopg2-binary tqdm requests
+
+# Copy the current directory contents into the container
+COPY ./consumer.py /app/consumer.py
+
+# Run consumer.py when the container launches
+CMD ["python", "consumer.py"]

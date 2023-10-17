@@ -1,0 +1,8 @@
+# DS_Dockerfile
+# Use the base Jupyter image as a starting point
+FROM jupyter/base-notebook:latest
+
+# Install additional Python libraries specified in requirements.txt
+COPY requirements.txt /tmp/
+RUN pip install --requirement /tmp/requirements.txt
+RUN pip install --upgrade notebook
