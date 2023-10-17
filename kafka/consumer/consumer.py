@@ -84,7 +84,7 @@ def process_csv_line(line):
 
 # Initialize Kafka Consumer
 consumer = KafkaConsumer(
-    'your_topic_name',
+    'eth_txs_topic',
     bootstrap_servers='kafka:9092',
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )

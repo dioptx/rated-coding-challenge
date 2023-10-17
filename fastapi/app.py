@@ -1,19 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import psycopg2
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
 app = FastAPI()
-
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-) # Todo: No idea if this is needed
 
 def create_table_if_not_exists():
     create_table_query = '''

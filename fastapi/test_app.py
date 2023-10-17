@@ -4,7 +4,7 @@ import app
 client = TestClient(app)
 
 def test_get_transaction():
-    response = client.get("/transactions/sample_hash")  # replace 'sample_hash' with a hash that actually exists in your DB for a meaningful test
+    response = client.get("/transactions/0xc055b65e39c15e1bc90cb4ccb2daac6b59c02ec1aa6c4216276054b4f31ed90a")
     assert response.status_code == 200
     assert "hash" in response.json()
 
